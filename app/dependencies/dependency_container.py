@@ -1,6 +1,6 @@
 from logging import Logger
 
-from app.dependencies.services.logger import get_logger, LogLevel
+from app.dependencies.services.logger import LogLevel, get_logger
 
 
 class DependencyContainer:
@@ -8,11 +8,9 @@ class DependencyContainer:
 
     log_level: str = "INFO"
 
-    def __init__(self):
-        pass
-
-    def configure_logger(self, log_level: LogLevel) -> None:
-        self.log_level = log_level
+    @classmethod
+    def configure_logger(cls, log_level: LogLevel) -> None:
+        cls.log_level = log_level
 
     @property
     def logger(self) -> Logger:
