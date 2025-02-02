@@ -1,5 +1,5 @@
 from app.dependencies.dependency_container import DependencyContainer
-from app.dependencies.services.settings import Settings
+from app.core.settings import Settings
 
 
 class AppFactory:
