@@ -1,5 +1,5 @@
-from app.dependencies.dependency_container import DependencyContainer
 from app.core.settings import Settings
+from app.dependencies.dependency_container import DependencyContainer
 
 
 class AppFactory:
@@ -14,8 +14,9 @@ class AppFactory:
     def configure_dependency_container(self) -> None:
         log_level: str = self.settings.logger.log_level
         DependencyContainer.configure_logger(log_level)
+        DependencyContainer.configure_neo4j(self.settings.graph_db)
 
         self.dependency_container = DependencyContainer()
 
     def run(self) -> None:
-        print(self.settings)
+        pass

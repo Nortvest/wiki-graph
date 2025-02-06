@@ -25,7 +25,7 @@ select = [
     "INT", "ARG", "PTH", "TD", "FIX", "ERA", "PL", "TRY", "FLY", "PERF", "FURB", "RUF", "Q"
 ]
 ignore = [
-    "ANN101", "ANN102", "RUF001", "RUF002", "RUF003", "FA100", "FA102", "PLC0206", "ANN401", "TID251",
+    "RUF001", "RUF002", "RUF003", "FA100", "FA102", "PLC0206", "ANN401", "TID251",
     "FIX002", "TD003", "TD002"  # Ignore TODOs
 ]
 

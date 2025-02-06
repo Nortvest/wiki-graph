@@ -15,5 +15,13 @@ class LoggerConfig(BaseSettings):
     log_level: str = "INFO"
 
 
+class GraphDBConfig(BaseSettings):
+    graph_db_url: str = "neo4j://localhost:7687"
+    graph_db_user: str = ""
+    graph_db_password: str = ""
+    graph_db_name: str = "neo4j"
+
+
 class Settings(BaseSettings):
     logger: LoggerConfig = LoggerConfig()
+    graph_db: GraphDBConfig = GraphDBConfig()
