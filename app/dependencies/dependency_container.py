@@ -2,7 +2,7 @@ from logging import Logger
 
 from app.core.settings import GraphDBConfig
 from app.dependencies.services.logger import LogLevel, get_logger
-from app.dependencies.services.neo4j.neo4j_connection import Neo4jConnection, Neo4jConfig
+from app.dependencies.services.neo4j.neo4j_connection import Neo4jConfig, Neo4jConnection
 from app.dependencies.services.repository import PageRepository
 
 
@@ -24,7 +24,7 @@ class DependencyContainer:
             url=graph_db_config.graph_db_url,
             user=graph_db_config.graph_db_user,
             password=graph_db_config.graph_db_password,
-            db_name=graph_db_config.graph_db_name
+            db_name=graph_db_config.graph_db_name,
         )
 
     @property
