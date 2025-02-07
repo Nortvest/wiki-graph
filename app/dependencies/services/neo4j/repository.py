@@ -23,8 +23,8 @@ class Connection(Protocol):
 
 class GraphRepository:  # noqa B903
     def __init__(self, connection: Connection, logger: Logger) -> None:
-        self.connection = connection
-        self.logger = logger
+        self._connection = connection
+        self._logger = logger
 
 
 class PageRepository(GraphRepository):
@@ -34,13 +34,15 @@ class PageRepository(GraphRepository):
     _CREATE_TWO_PAGES_AND_LINK_QUERY = _CREATE_TWO_PAGES_QUERY + """MERGE (p1)-[l:link]->(p2)"""
 
     async def create_one_page(self, page_title: str) -> None:
-        await self.connection.query(self._CREATE_ONE_PAGE_QUERY, parameters={"page_title", page_title})
+        await self._connection.query(self._CREATE_ONE_PAGE_QUERY, parameters={"page_title", page_title})
+        self._logger.info(f"Page with title '{page_title}' was been saved.")
 
     async def create_two_pages_and_link(self, page_title_1: str, page_title_2: str) -> None:
-        await self.connection.query(
+        await self._connection.query(
             self._CREATE_TWO_PAGES_AND_LINK_QUERY,
             parameters={
                 "page_title_1": page_title_1,
                 "page_title_2": page_title_2,
             },
         )
+        self._logger.info(f"Pages with title '{page_title_1}' and '{page_title_2}' and Link between them were saved.")
