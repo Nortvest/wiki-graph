@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from logging import Logger
 
 from typing_extensions import Protocol
@@ -19,6 +21,20 @@ class Connection(Protocol):
         :return: Результат запроса \ Ничего, если возникла ошибка. Пример:
         [{'p1': {'title': 'Философия'}, 'p2': {'title': 'Позитивизм'}}]
         """
+
+
+class GraphRepositoryContainer:
+    _page_repository: PageRepository | None = None
+
+    def __init__(self, connection: Connection, logger: Logger) -> None:
+        self._connection = connection
+        self._logger = logger
+
+    @property
+    def page_repository(self) -> PageRepository:
+        if not self._page_repository:
+            self._page_repository = PageRepository(connection=self._connection, logger=self._logger)
+        return self._page_repository
 
 
 class GraphRepository:  # noqa B903
