@@ -22,6 +22,11 @@ class GraphDBConfig(BaseSettings):
     graph_db_name: str = "neo4j"
 
 
+class AppConfig(BaseSettings):
+    num_page_workers: int = 4
+
+
 class Settings(BaseSettings):
+    app: AppConfig = AppConfig()
     logger: LoggerConfig = LoggerConfig()
     graph_db: GraphDBConfig = GraphDBConfig()
