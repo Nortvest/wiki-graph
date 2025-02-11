@@ -55,7 +55,7 @@ class HttpClient:
         :raises aiohttp.ClientResponseError: Если в ответе содержится сообщение об ошибке HTTP.
         :raises aiohttp.ClientError: Для других ошибок, связанных с клиентом.
         """
-        async with session.request(method, url, **request_kwargs) as response:
+        async with session.request(method, url, **request_kwargs) as response:  # type: ignore
             response.raise_for_status()
             try:
                 return await response.json()

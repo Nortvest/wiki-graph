@@ -1,5 +1,8 @@
 from pydantic_settings import BaseSettings as BaseSettingsPydantic
 from pydantic_settings import SettingsConfigDict
+from typing_extensions import Literal
+
+type LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
 class BaseSettings(BaseSettingsPydantic):
@@ -12,7 +15,7 @@ class BaseSettings(BaseSettingsPydantic):
 
 
 class LoggerConfig(BaseSettings):
-    log_level: str = "INFO"
+    log_level: LogLevel = "INFO"
 
 
 class GraphDBConfig(BaseSettings):

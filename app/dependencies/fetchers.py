@@ -65,23 +65,34 @@ class FetchersContainer:
 
 
 class Fetchers:  # noqa B903
+    BASE_URL: str = ""
+
     def __init__(self, http_client: HttpClient, logger: Logger) -> None:
         self._http_client = http_client
         self._logger = logger
 
+    def _build_page_url(self, *paths: str) -> str:
+        return self.BASE_URL + "".join(paths)
+
 
 class WikiFetchers(Fetchers):
-    WIKI_BASE_URL = "https://ru.wikipedia.org/"
+    BASE_URL = "https://ru.wikipedia.org/"
 
     WIKI_PAGE_PATH = "wiki/"
 
     def __init__(self, http_client: HttpClient, logger: Logger) -> None:
-        http_client.base_url = self.WIKI_BASE_URL
+        http_client.base_url = self.BASE_URL
         super().__init__(http_client, logger)
 
-    async def fetch_wiki_page(self, page_name: str) -> HTMLString:
-        # TODO: Add try-except.
-        return await self._http_client.get(url=self._build_page_url(page_name))
+    async def fetch_wiki_page(self, page_name: str) -> HTMLString | None:
+        url = self._build_page_url(self.WIKI_PAGE_PATH, page_name)
 
-    def _build_page_url(self, page_name: str) -> str:
-        return self.WIKI_PAGE_PATH + page_name
+        try:
+            html: dict | HTMLString = await self._http_client.get(url=url)
+        except TimeoutError:
+            self._logger.exception("Wikipedia page '%s' timed out.", page_name)
+            return None
+        else:
+            if isinstance(html, str):
+                return html
+            self._logger.warning("Wikipedia page '%s' is not string. Out: %s", page_name, html)

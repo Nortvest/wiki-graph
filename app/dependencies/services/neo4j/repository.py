@@ -51,7 +51,7 @@ class PageRepository(GraphRepository):
     _CREATE_TWO_PAGES_AND_LINK_QUERY = _CREATE_TWO_PAGES_QUERY + """MERGE (p1)-[l:link]->(p2)"""
 
     async def create_one_page(self, page_title: str) -> None:
-        await self._connection.query(self._CREATE_ONE_PAGE_QUERY, parameters={"page_title", page_title})
+        await self._connection.query(self._CREATE_ONE_PAGE_QUERY, parameters={"page_title": page_title})
         self._logger.info("Page with title '%s' was been saved.", page_title)
 
     async def create_two_pages_and_link(self, page_title_1: str, page_title_2: str) -> None:

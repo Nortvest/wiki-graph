@@ -15,6 +15,7 @@ class WorkersManger:
 
     def registry_worker(self, worker: WorkerBase) -> WorkersManger:
         self.workers.append(worker)
+        return self
 
     async def run(self) -> None:
         tasks = [
