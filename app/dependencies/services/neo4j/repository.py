@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from pydantic import TypeAdapter
 from typing_extensions import TYPE_CHECKING, Protocol
+
+from app.models.page import Page
 
 if TYPE_CHECKING:
     from logging import Logger
@@ -10,7 +13,7 @@ class Connection(Protocol):
     async def close(self) -> None:
         """Закрывает соединение с базой данных."""
 
-    async def query(self, query: str, parameters: dict[str, str] | None = None) -> list[dict] | None:
+    async def query(self, query: str, parameters: dict[str, str | int] | None = None) -> list[dict]:
         r"""
         Выполняет запрос к базе данных.
 
@@ -50,6 +53,8 @@ class PageRepository(GraphRepository):
 
     _CREATE_TWO_PAGES_AND_LINK_QUERY = _CREATE_TWO_PAGES_QUERY + """MERGE (p1)-[l:link]->(p2)"""
 
+    _GET_PAGE_WITHOUT_LINKS_QUERY = """MATCH (page:Page) WHERE not ((page)-[:link]->(:Page)) RETURN page LIMIT $limit"""
+
     async def create_one_page(self, page_title: str) -> None:
         await self._connection.query(self._CREATE_ONE_PAGE_QUERY, parameters={"page_title": page_title})
         self._logger.info("Page with title '%s' was been saved.", page_title)
@@ -67,3 +72,13 @@ class PageRepository(GraphRepository):
             page_title_1,
             page_title_2,
         )
+
+    async def get_pages_without_links(self, limit: int = 10) -> list[Page]:
+        pages = await self._connection.query(self._GET_PAGE_WITHOUT_LINKS_QUERY, parameters={"limit": limit})
+
+        adapter = TypeAdapter(list[Page])
+        pages_values = [page["page"] for page in pages]
+        page_models = adapter.validate_python(pages_values)
+
+        self._logger.info("Pages without links were received. %s", page_models)
+        return page_models

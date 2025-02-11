@@ -9,4 +9,5 @@ class PageWorker(WorkerBase):
         self._logger = container.logger
 
     async def run(self) -> None:
-        pass
+        res = await self._page_repository.get_pages_without_links()
+        self._logger.info(res)

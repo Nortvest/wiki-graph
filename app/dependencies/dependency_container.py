@@ -61,9 +61,9 @@ class DependencyContainer:
     def fetchers_container(self) -> FetchersContainer:
         if not self._fetchers_container:
             self._fetchers_container = FetchersContainer(
-                http_client=self.http_client,
-                logger=self.logger
-            )  # type: ignore
+                http_client=self.http_client,  # type: ignore
+                logger=self.logger,
+            )
         return self._fetchers_container
 
     @property

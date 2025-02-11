@@ -25,7 +25,7 @@ class Neo4jConnection:
         if self.driver is not None:
             await self.driver.close()
 
-    async def query(self, query: str, parameters: dict[str, str] | None = None) -> list[dict] | None:
+    async def query(self, query: str, parameters: dict[str, str] | None = None) -> list[dict]:
         session = None
 
         try:
