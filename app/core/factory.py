@@ -37,6 +37,11 @@ class AppFactory:
         self._workers_manger: WorkersManger = workers_factory.workers_manger
 
     def run(self) -> None:
+        if not self._dependency_container:
+            msg = "'DependencyContainer' is not defined! Call 'configure_dependency_container' method."
+            raise ValueError(msg)
+
+        self._dependency_container.logger.info("Application is starting!")
         loop = asyncio.get_event_loop()
 
         loop.run_until_complete(self._workers_manger.run())

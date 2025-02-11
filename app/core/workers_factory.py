@@ -1,6 +1,6 @@
 from app.dependencies.dependency_container import DependencyContainer
-from app.workers.workers_manager import WorkersManger
 from app.workers.page_worker import PageWorker
+from app.workers.workers_manager import WorkersManger
 
 
 class WorkersFactory:

@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from logging import Logger
+from typing_extensions import TYPE_CHECKING, Protocol
 
-from typing_extensions import Protocol
+if TYPE_CHECKING:
+    from logging import Logger
 
 
 class Connection(Protocol):
@@ -51,7 +52,7 @@ class PageRepository(GraphRepository):
 
     async def create_one_page(self, page_title: str) -> None:
         await self._connection.query(self._CREATE_ONE_PAGE_QUERY, parameters={"page_title", page_title})
-        self._logger.info(f"Page with title '{page_title}' was been saved.")
+        self._logger.info("Page with title '%s' was been saved.", page_title)
 
     async def create_two_pages_and_link(self, page_title_1: str, page_title_2: str) -> None:
         await self._connection.query(
@@ -61,4 +62,8 @@ class PageRepository(GraphRepository):
                 "page_title_2": page_title_2,
             },
         )
-        self._logger.info(f"Pages with title '{page_title_1}' and '{page_title_2}' and Link between them were saved.")
+        self._logger.info(
+            "Pages with title '%s' and '%s' and Link between them were saved.",
+            page_title_1,
+            page_title_2,
+        )

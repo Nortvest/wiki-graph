@@ -11,4 +11,4 @@ class PageWorker(WorkerBase):
 
     async def run(self) -> None:
         await asyncio.sleep(3)
-        self._logger.debug(f"Run application!")
+        self._logger.debug("Run application %d!", id(self))

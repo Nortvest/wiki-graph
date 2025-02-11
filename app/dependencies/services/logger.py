@@ -8,5 +8,6 @@ type LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
 
 
 def get_logger(level: LogLevel) -> Logger:
-    logger.add(sys.stderr, level=level)
+    logger.remove()
+    logger.add(sys.stdout, level=level)
     return logger

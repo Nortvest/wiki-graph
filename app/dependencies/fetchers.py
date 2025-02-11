@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from logging import Logger
+from typing_extensions import TYPE_CHECKING, Protocol
 
-from typing_extensions import Protocol
+if TYPE_CHECKING:
+    from logging import Logger
 
 type HTMLString = str
 
@@ -52,7 +53,7 @@ class HttpClient(Protocol):
 class FetchersContainer:
     _wiki_fetchers: WikiFetchers | None = None
 
-    def __init__(self, http_client: HttpClient, logger: Logger):
+    def __init__(self, http_client: HttpClient, logger: Logger) -> None:
         self._http_client = http_client
         self._logger = logger
 
@@ -63,7 +64,7 @@ class FetchersContainer:
         return self._wiki_fetchers
 
 
-class Fetchers:
+class Fetchers:  # noqa B903
     def __init__(self, http_client: HttpClient, logger: Logger) -> None:
         self._http_client = http_client
         self._logger = logger
@@ -79,7 +80,7 @@ class WikiFetchers(Fetchers):
         super().__init__(http_client, logger)
 
     async def fetch_wiki_page(self, page_name: str) -> HTMLString:
-        # TODO Add try-except.
+        # TODO: Add try-except.
         return await self._http_client.get(url=self._build_page_url(page_name))
 
     def _build_page_url(self, page_name: str) -> str:

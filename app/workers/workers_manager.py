@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import asyncio
+from typing import TYPE_CHECKING
 
-from app.dependencies.dependency_container import DependencyContainer
-from app.workers.base import WorkerBase
+if TYPE_CHECKING:
+    from app.dependencies.dependency_container import DependencyContainer
+    from app.workers.base import WorkerBase
 
 
 class WorkersManger:
-    def __init__(self, container: DependencyContainer):
+    def __init__(self, container: DependencyContainer) -> None:
         self.container = container
         self.workers: list[WorkerBase] = []
 
