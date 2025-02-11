@@ -1,10 +1,7 @@
 from dataclasses import dataclass
+from logging import Logger
 
 from neo4j import AsyncGraphDatabase
-from typing_extensions import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from app.dependencies.services.logger import Logger
 
 
 @dataclass
@@ -16,7 +13,7 @@ class Neo4jConfig:
 
 
 class Neo4jConnection:
-    def __init__(self, neo4j_config: Neo4jConfig, logger: "Logger") -> None:
+    def __init__(self, neo4j_config: Neo4jConfig, logger: Logger) -> None:
         self.driver = AsyncGraphDatabase.driver(
             neo4j_config.url,
             auth=(neo4j_config.user, neo4j_config.password),

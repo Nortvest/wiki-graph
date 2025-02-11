@@ -109,7 +109,7 @@ class HttpClient:
         """
         async with aiohttp.ClientSession(headers=self.headers) as session:
             async with asyncio.timeout(self.timeout):
-                return await self.fetch(session, method, url, **request_kwargs)
+                return await self.fetch(session, method, url, **request_kwargs)  # type: ignore
 
     async def get(
             self,
