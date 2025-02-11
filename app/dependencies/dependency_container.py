@@ -1,9 +1,11 @@
 from logging import Logger
 
 from app.core.settings import GraphDBConfig
+from app.dependencies.fetchers import FetchersContainer
+from app.dependencies.services.http_client import HttpClient
 from app.dependencies.services.logger import LogLevel, get_logger
 from app.dependencies.services.neo4j.neo4j_connection import Neo4jConfig, Neo4jConnection
-from app.dependencies.services.neo4j.repository import PageRepository
+from app.dependencies.services.neo4j.repository import GraphRepositoryContainer
 
 
 class DependencyContainer:
@@ -11,8 +13,10 @@ class DependencyContainer:
     _neo4j_config: Neo4jConfig | None = None
 
     _logger: Logger | None = None
-    _page_repository: PageRepository | None = None
     _neo4j_connection: Neo4jConnection | None = None
+    _graph_repository_container: GraphRepositoryContainer | None = None
+    _http_client: HttpClient | None = None
+    _fetchers_container: FetchersContainer | None = None
 
     @classmethod
     def configure_logger(cls, log_level: LogLevel) -> None:
@@ -34,10 +38,13 @@ class DependencyContainer:
         return self._logger
 
     @property
-    def page_repository(self) -> PageRepository:
-        if not self._page_repository:
-            self._page_repository = PageRepository(connection=self.neo4j_connection, logger=self.logger)
-        return self._page_repository
+    def graph_repository_container(self) -> GraphRepositoryContainer:
+        if not self._graph_repository_container:
+            self._graph_repository_container = GraphRepositoryContainer(
+                connection=self.neo4j_connection,
+                logger=self.logger,
+            )
+        return self._graph_repository_container
 
     @property
     def neo4j_connection(self) -> Neo4jConnection:
@@ -49,3 +56,18 @@ class DependencyContainer:
 
             self._neo4j_connection = Neo4jConnection(neo4j_config=self._neo4j_config, logger=self.logger)
         return self._neo4j_connection
+
+    @property
+    def fetchers_container(self) -> FetchersContainer:
+        if not self._fetchers_container:
+            self._fetchers_container = FetchersContainer(
+                http_client=self.http_client,
+                logger=self.logger
+            )  # type: ignore
+        return self._fetchers_container
+
+    @property
+    def http_client(self) -> HttpClient:
+        if not self._http_client:
+            self._http_client = HttpClient()
+        return self._http_client

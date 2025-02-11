@@ -65,27 +65,27 @@ class FetchersContainer:
 
 
 class Fetchers:  # noqa B903
-    BASE_URL: str = ""
+    _BASE_URL: str = ""
 
     def __init__(self, http_client: HttpClient, logger: Logger) -> None:
         self._http_client = http_client
         self._logger = logger
 
     def _build_page_url(self, *paths: str) -> str:
-        return self.BASE_URL + "".join(paths)
+        return self._BASE_URL + "".join(paths)
 
 
 class WikiFetchers(Fetchers):
-    BASE_URL = "https://ru.wikipedia.org/"
+    _BASE_URL = "https://ru.wikipedia.org/"
 
-    WIKI_PAGE_PATH = "wiki/"
+    _WIKI_PAGE_PATH = "wiki/"
 
     def __init__(self, http_client: HttpClient, logger: Logger) -> None:
-        http_client.base_url = self.BASE_URL
+        http_client.base_url = self._BASE_URL
         super().__init__(http_client, logger)
 
     async def fetch_wiki_page(self, page_name: str) -> HTMLString | None:
-        url = self._build_page_url(self.WIKI_PAGE_PATH, page_name)
+        url = self._build_page_url(self._WIKI_PAGE_PATH, page_name)
 
         try:
             html: dict | HTMLString = await self._http_client.get(url=url)

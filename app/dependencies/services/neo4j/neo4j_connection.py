@@ -34,8 +34,8 @@ class Neo4jConnection:
             async_result = await session.run(query, parameters=parameters)
             result = [res.data() async for res in async_result]
         except Exception:
-            self.logger.exception("Query '%s' failed:", query)
-            return None
+            self.logger.exception("Query '%s' failed. Params: %s", query, parameters)
+            raise
         else:
             return result
         finally:

@@ -1,4 +1,5 @@
 from app.dependencies.dependency_container import DependencyContainer
+from app.workers.init_worker import InitWorker
 from app.workers.page_worker import PageWorker
 from app.workers.workers_manager import WorkersManger
 
@@ -17,7 +18,12 @@ class WorkersFactory:
         return self._workers_manger
 
     def configure(self) -> None:
+        self._configure_init_worker()
         self._configure_page_workers()
+
+    def _configure_init_worker(self) -> None:
+        worker = InitWorker(self._container)
+        self.workers_manger.registry_init_worker(worker)
 
     def _configure_page_workers(self) -> None:
         for _ in range(self._num_page_workers):
