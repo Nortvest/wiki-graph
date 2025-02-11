@@ -62,7 +62,7 @@ class HttpClient:
             except aiohttp.ContentTypeError:
                 return await response.text()
 
-    async def _request_with_retries(
+    async def _request_with_retries(  # type: ignore
         self,
         method: str,
         url: str,

@@ -1,5 +1,7 @@
+from logging import Logger
+
 from app.core.settings import GraphDBConfig
-from app.dependencies.services.logger import Logger, LogLevel, get_logger
+from app.dependencies.services.logger import LogLevel, get_logger
 from app.dependencies.services.neo4j.neo4j_connection import Neo4jConfig, Neo4jConnection
 from app.dependencies.services.neo4j.repository import PageRepository
 

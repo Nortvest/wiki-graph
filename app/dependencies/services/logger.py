@@ -1,35 +1,16 @@
-import sys
+import logging
 
-from loguru import logger
-from typing_extensions import Literal, Protocol
+from typing_extensions import Literal
 
 type LogLevel = Literal["TRACE", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 
-class Logger(Protocol):
-    def trace(self, msg: str) -> None:
-        raise NotImplementedError
+def get_logger(level: LogLevel) -> logging.Logger:
+    logger = logging.getLogger(__name__)
 
-    def debug(self, msg: str) -> None:
-        raise NotImplementedError
-
-    def info(self, msg: str, *args: str | int) -> None:
-        raise NotImplementedError
-
-    def warning(self, msg: str) -> None:
-        raise NotImplementedError
-
-    def error(self, msg: str) -> None:
-        raise NotImplementedError
-
-    def critical(self, msg: str) -> None:
-        raise NotImplementedError
-
-    def exception(self, msg: str) -> None:
-        raise NotImplementedError
-
-
-def get_logger(level: LogLevel) -> Logger:
-    logger.remove()
-    logger.add(sys.stdout, level=level)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(level.upper())
     return logger

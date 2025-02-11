@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing_extensions import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from logging import Logger
+    from app.dependencies.services.logger import Logger
 
 
 class Connection(Protocol):

@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing_extensions import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
-    from logging import Logger
+    from app.dependencies.services.logger import Logger
 
 type HTMLString = str
 
@@ -96,3 +96,5 @@ class WikiFetchers(Fetchers):
             if isinstance(html, str):
                 return html
             self._logger.warning("Wikipedia page '%s' is not string. Out: %s", page_name, html)
+        return None
+
