@@ -41,7 +41,7 @@ class DependencyContainer:
     def graph_repository_container(self) -> GraphRepositoryContainer:
         if not self._graph_repository_container:
             self._graph_repository_container = GraphRepositoryContainer(
-                connection=self.neo4j_connection,
+                connection=self.neo4j_connection,  # type: ignore
                 logger=self.logger,
             )
         return self._graph_repository_container

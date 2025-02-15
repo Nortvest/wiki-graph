@@ -10,4 +10,4 @@ class PageWorker(WorkerBase):
 
     async def run(self) -> None:
         res = await self._page_repository.get_pages_without_links()
-        self._logger.info(res)
+        self._logger.debug(res)

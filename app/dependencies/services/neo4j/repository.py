@@ -57,7 +57,7 @@ class PageRepository(GraphRepository):
 
     async def create_one_page(self, page_title: str) -> None:
         await self._connection.query(self._CREATE_ONE_PAGE_QUERY, parameters={"page_title": page_title})
-        self._logger.info("Page with title '%s' was been saved.", page_title)
+        self._logger.debug("Page with title '%s' was been saved.", page_title)
 
     async def create_two_pages_and_link(self, page_title_1: str, page_title_2: str) -> None:
         await self._connection.query(
@@ -67,7 +67,7 @@ class PageRepository(GraphRepository):
                 "page_title_2": page_title_2,
             },
         )
-        self._logger.info(
+        self._logger.debug(
             "Pages with title '%s' and '%s' and Link between them were saved.",
             page_title_1,
             page_title_2,
@@ -80,5 +80,5 @@ class PageRepository(GraphRepository):
         pages_values = [page["page"] for page in pages]
         page_models = adapter.validate_python(pages_values)
 
-        self._logger.info("Pages without links were received. %s", page_models)
+        self._logger.debug("Pages without links were received. %s", page_models)
         return page_models

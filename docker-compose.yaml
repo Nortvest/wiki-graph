@@ -1,0 +1,25 @@
+services:
+  application:
+    build: .
+    container_name: application
+    command: uv run python main.py
+    environment:
+      PYTHONUNBUFFERED: 1
+      AUTORELOAD: true
+      LOG_LEVEL: "${LOG_LEVEL}"
+      GRAPH_DB_URL: "neo4j://neo4j:7687"
+      GRAPH_DB_USER: "${GRAPH_DB_USER}"
+      GRAPH_DB_PASSWORD: "${GRAPH_DB_PASSWORD}"
+    restart: always
+    depends_on:
+      - neo4j
+
+  neo4j:
+    image: neo4j:5.26.2-ubi9
+    container_name: neo4j
+    environment:
+      NEO4J_AUTH: "neo4j/${GRAPH_DB_PASSWORD}"
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+

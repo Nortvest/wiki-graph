@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from logging import Logger
 
-from neo4j import AsyncGraphDatabase
+from neo4j import AsyncDriver, AsyncGraphDatabase
 
 
 @dataclass
@@ -13,13 +13,21 @@ class Neo4jConfig:
 
 
 class Neo4jConnection:
+    _driver: AsyncDriver | None = None
+
     def __init__(self, neo4j_config: Neo4jConfig, logger: Logger) -> None:
-        self.driver = AsyncGraphDatabase.driver(
-            neo4j_config.url,
-            auth=(neo4j_config.user, neo4j_config.password),
-        )
+        self.neo4j_config = neo4j_config
         self.logger = logger
         self.db_name = neo4j_config.db_name
+
+    @property
+    def driver(self) -> AsyncDriver:
+        if not self._driver:
+            self._driver = AsyncGraphDatabase.driver(
+                self.neo4j_config.url,
+                auth=(self.neo4j_config.user, self.neo4j_config.password),
+            )
+        return self._driver
 
     async def close(self) -> None:
         if self.driver is not None:
