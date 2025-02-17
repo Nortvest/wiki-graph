@@ -16,12 +16,21 @@ class PageWorker(WorkerBase):
         while True:
             pages: list[Page] = await self._page_repository.get_pages_without_links()
 
-            if not pages:
-                await asyncio.sleep(5)
-                continue
+            try:
+                await self._process_pages(pages)
+            except Exception:
+                self._logger.exception("Failed to process pages")
 
-            for page in pages:
-                await self._process_page(page)
+                for page in pages:
+                    await self._page_repository.update_page_status(page=page, status=PageStatus.failed)
+
+    async def _process_pages(self, pages: list[Page]) -> None:
+        if not pages:
+            await asyncio.sleep(5)
+            return
+
+        for page in pages:
+            await self._process_page(page)
 
     async def _process_page(self, page: Page) -> None:
         try:
@@ -44,11 +53,10 @@ class PageWorker(WorkerBase):
             for name in page_names
         ]
 
-        await self._page_repository.create_pages_and_links(*linked_pages)
+        await self._page_repository.create_pages_and_links(*linked_pages, batch_size=10)
         self._logger.info(
             "[Worker %s] Created %d pages. From page: %s",
-            id(self), len(linked_pages), page.title
+            id(self), len(linked_pages), page.title,
         )
 
         await self._page_repository.update_page_status(page=page, status=PageStatus.success)
-

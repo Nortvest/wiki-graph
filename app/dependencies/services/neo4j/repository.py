@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import asyncio
 from itertools import batched
 
 from typing_extensions import TYPE_CHECKING, Protocol
@@ -6,10 +8,9 @@ from typing_extensions import TYPE_CHECKING, Protocol
 from app.models.page import LinkedPages, Page, PageStatus
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
     from logging import Logger
 
-type ParametersValue = str | int | list[PageStatus] | PageStatus
+type ParametersValue = str | int | list[PageStatus | str] | PageStatus
 
 
 class Connection(Protocol):
@@ -51,6 +52,11 @@ class GraphRepository:  # noqa B903
 
 
 class PageRepository(GraphRepository):
+    def __init__(self, connection: Connection, logger: Logger) -> None:
+        super().__init__(connection, logger)
+        self._read_lock = asyncio.Lock()
+        self._write_lock = asyncio.Lock()
+
     _CREATE_ONE_PAGE_QUERY = """MERGE (p:Page {title: $page_title}) ON CREATE SET p.status = $page_status"""
 
     _UPDATE_PAGES_STATUS_QUERY = """MATCH (p:Page) WHERE p.title in $page_titles SET p.status = $page_status"""
@@ -73,28 +79,31 @@ class PageRepository(GraphRepository):
                                        RETURN page LIMIT $limit"""
 
     async def create_one_page(self, page: Page) -> None:
-        await self._connection.query(
-            self._CREATE_ONE_PAGE_QUERY,
-            parameters={"page_title": page.title, "page_status": PageStatus.open},
-        )
+        async with self._write_lock:
+            await self._connection.query(
+                self._CREATE_ONE_PAGE_QUERY,
+                parameters={"page_title": page.title, "page_status": PageStatus.open},
+            )
         self._logger.debug("Page '%s' was been saved.", page)
 
     async def update_page_status(self, page: Page, status: PageStatus) -> None:
-        await self._connection.query(
-            self._UPDATE_PAGES_STATUS_QUERY,
-            parameters={"page_titles": [page.title], "page_status": status},
-        )
+        async with self._write_lock:
+            await self._connection.query(
+                self._UPDATE_PAGES_STATUS_QUERY,
+                parameters={"page_titles": [page.title], "page_status": status},
+            )
         self._logger.debug("Page '%s' was changed status to '%s'.", page, status)
 
     async def create_two_pages_and_link(self, pages: LinkedPages) -> None:
-        await self._connection.query(
-            self._CREATE_TWO_PAGES_AND_LINK_QUERY,
-            parameters={
-                "page_title_1": pages.main_page.title,
-                "page_title_2": pages.secondary_page.title,
-                "page_status_2": PageStatus.open,
-            },
-        )
+        async with self._write_lock:
+            await self._connection.query(
+                self._CREATE_TWO_PAGES_AND_LINK_QUERY,
+                parameters={
+                    "page_title_1": pages.main_page.title,
+                    "page_title_2": pages.secondary_page.title,
+                    "page_status_2": PageStatus.open,
+                },
+            )
         self._logger.debug("Pages '%s' and Link between them were saved.", pages)
 
     async def create_pages_and_links(self, *linked_pages: LinkedPages, batch_size: int = 100) -> None:
@@ -104,14 +113,16 @@ class PageRepository(GraphRepository):
 
             for i, page in enumerate(pages, start=1):
                 queries.append(
-                    self._CREATE_MANY_PAGES_AND_LINKS_QUERY % ((i, ) * 9)
+                    self._CREATE_MANY_PAGES_AND_LINKS_QUERY % ((i, ) * 9),
                 )
 
                 params[f"page_title_{i}1"] = page.main_page.title
                 params[f"page_title_{i}2"] = page.secondary_page.title
                 params[f"page_status_{i}2"] = PageStatus.open
 
-            await self._connection.query("\n".join(queries), parameters=params)
+            async with self._write_lock:
+                await self._connection.query("\n".join(queries), parameters=params)  # type: ignore
+
             self._logger.debug("Pages '%s' and Link between them were saved.", pages)
 
     async def get_pages_without_links(self, limit: int = 10) -> list[Page]:
@@ -121,13 +132,14 @@ class PageRepository(GraphRepository):
             "page_status": PageStatus.in_progress,
         }
 
-        pages = await self._connection.query(self._GET_PAGE_WITHOUT_LINKS_QUERY, parameters=params)
-        page_models: list[Page] = [Page.model_validate(page["page"]) for page in pages]
+        async with self._read_lock:
+            pages = await self._connection.query(self._GET_PAGE_WITHOUT_LINKS_QUERY, parameters=params)  # type: ignore
+            page_models: list[Page] = [Page.model_validate(page["page"]) for page in pages]
 
-        await self._connection.query(
-            self._UPDATE_PAGES_STATUS_QUERY,
-            parameters={"page_titles": [page.title for page in page_models], "page_status": PageStatus.in_progress},
-        )
+            await self._connection.query(
+                self._UPDATE_PAGES_STATUS_QUERY,
+                parameters={"page_titles": [page.title for page in page_models], "page_status": PageStatus.in_progress},
+            )
 
         self._logger.debug("Pages without links were received. %s", page_models)
         return page_models
