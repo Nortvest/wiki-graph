@@ -1,6 +1,7 @@
 from neo4j.exceptions import ServiceUnavailable
 
 from app.dependencies.dependency_container import DependencyContainer
+from app.models.page import Page
 from app.services.retries import async_retries
 from app.workers.base import WorkerBase
 
@@ -18,5 +19,7 @@ class InitWorker(WorkerBase):
 
     @async_retries(num_retries=5, timeout=3, exception=ServiceUnavailable)
     async def _create_start_page(self, page: str) -> None:
-        await self._page_repository.create_one_page(page)
+        page_model = Page(title=page)
+
+        await self._page_repository.create_one_page(page_model)
         self._logger.info("Created start page '%s'", page)

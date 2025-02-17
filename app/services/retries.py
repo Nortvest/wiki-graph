@@ -14,7 +14,7 @@ _Func: TypeAlias = Callable[_P, _T]
 def retries(
         num_retries: int,
         timeout: float,
-        exception: type[Exception] = Exception
+        exception: type[Exception] = Exception,
 ) -> Callable[[_Func[_P, _T]], _Func[_P, _T | None]]:
 
     def decorator(function: _Func[_P, _T]) -> _Func[_P, _T | None]:
